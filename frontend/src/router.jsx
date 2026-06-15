@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import RootLayout from "./layouts/RootLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
 import HomePage from "./pages/HomePage";
 import LibraryPage from "./pages/LibraryPage";
 import BookDetailPage from "./pages/BookDetailPage";
@@ -9,10 +10,9 @@ import ProfilePage from "./pages/ProfilePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import AdminLayout from "./layouts/AdminLayout";
-// import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminBooks from "./pages/admin/AdminBooks";
 import AdminUpload from "./pages/admin/AdminUpload";
-
 
 export const router = createBrowserRouter([
   {
@@ -22,9 +22,23 @@ export const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: "library", element: <LibraryPage /> },
       { path: "library/:bookId", element: <BookDetailPage /> },
-      { path: "read/:bookId", element: <ReaderPage /> },
+      {
+        path: "read/:bookId",
+        element: (
+          <ProtectedRoute>
+            <ReaderPage />
+          </ProtectedRoute>
+        ),
+      },
       { path: "leaderboard", element: <LeaderboardPage /> },
-      { path: "profile", element: <ProfilePage /> },
+      {
+        path: "profile",
+        element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        ),
+      },
       { path: "login", element: <LoginPage /> },
       { path: "register", element: <RegisterPage /> },
     ],
@@ -33,7 +47,7 @@ export const router = createBrowserRouter([
     path: "/admin",
     element: <AdminLayout />,
     children: [
-    //   { index: true, element: <AdminDashboard /> },
+      { index: true, element: <AdminDashboard /> },
       { path: "books", element: <AdminBooks /> },
       { path: "upload", element: <AdminUpload /> },
     ],
