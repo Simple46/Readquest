@@ -1,0 +1,13 @@
+{
+  "name": "readquest",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "frontend:dev": "cd frontend && npm run dev",
+    "backend:dev": "cd backend && npm run dev",
+    "dev": "concurrently \"npm run frontend:dev\" \"npm run backend:dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
