@@ -6,28 +6,47 @@ import authRoutes from "./routes/auth.js";
 import bookRoutes from "./routes/books.js";
 import progressRoutes from "./routes/progress.js";
 import leaderboardRoutes from "./routes/leaderboard.js";
+import uploadRoutes from "./routes/upload.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
+// CORS — allow all origins in development, specific in production
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  process.env.FRONTEND_URL, // your Vercel URL
+].filter(Boolean); // remove undefined
+
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? ["https://your-vercel-domain.vercel.app"]
-        : ["http://localhost:5173"],
+    origin: function (origin, callback) {
+      // allow requests with no origin (mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("CORS blocked origin:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
-app.use(express.json());
+
+app.use(express.json({ limit: "10mb" }));
 
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
+app.use("/api/upload", uploadRoutes);
 
 // Health Check
 app.get("/api/health", (req, res) => {
@@ -51,4 +70,5 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 ReadQuest API running on http://localhost:${PORT}`);
+  console.log(`📋 Allowed origins:`, allowedOrigins);
 });
