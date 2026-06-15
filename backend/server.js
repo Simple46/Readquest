@@ -13,26 +13,16 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// CORS — allow all origins in development, specific in production
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  process.env.FRONTEND_URL, // your Vercel URL
-].filter(Boolean); // remove undefined
+// CORS — explicit preflight + middleware
+app.options("*", cors());
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // allow requests with no origin (mobile apps, curl, etc.)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.log("CORS blocked origin:", origin);
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "https://readquest-delta.vercel.app",
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -54,6 +44,16 @@ app.get("/api/health", (req, res) => {
     status: "ok",
     message: "ReadQuest API is running",
     timestamp: new Date().toISOString(),
+    cors: "enabled for readquest-delta.vercel.app",
+  });
+});
+
+// CORS test
+app.get("/api/cors-test", (req, res) => {
+  res.json({
+    message: "CORS is working!",
+    origin: req.headers.origin || "no origin",
+    allowed: "https://readquest-delta.vercel.app",
   });
 });
 
@@ -69,6 +69,6 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 ReadQuest API running on http://localhost:${PORT}`);
-  console.log(`📋 Allowed origins:`, allowedOrigins);
+  console.log(`🚀 ReadQuest API running on port ${PORT}`);
+  console.log(`📋 CORS enabled for: https://readquest-delta.vercel.app`);
 });
