@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String    // hashed
+  fullName      String
+  avatarUrl     String?
+  xp            Int       @default(0)
+  totalPagesRead Int      @default(0)
+  booksCompleted Int     @default(0)
+  currentStreak Int      @default(0)
+  longestStreak Int      @default(0)
+  lastReadDate  DateTime?
+  referralCode  String   @unique
+  referredBy    String?  // user id of referrer
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  readingProgress ReadingProgress[]
+  xpHistory       XpHistory[]
+  achievements    UserAchievement[]
+  referralsMade   Referral[] @relation("Referrer")
+  referralsReceived Referral[] @relation("Referred")
+}
+
+model Book {
+  id              String   @id @default(uuid())
+  title           String
+  author          String
+  description     String?
+  coverUrl        String?
+  pdfUrl          String
+  category        String
+  difficulty      String   @default("beginner") // beginner, intermediate, advanced
+  estimatedTime   Int      // in minutes
+  totalPages      Int      @default(0)
+  publishedYear   Int?
+  openLibraryKey  String?  // Open Library work key
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  readingProgress ReadingProgress[]
+}
+
+model ReadingProgress {
+  id          String   @id @default(uuid())
+  userId      String
+  bookId      String
+  currentPage Int      @default(0)
+  percentage  Float    @default(0)
+  isCompleted Boolean  @default(false)
+  readingTime Int      @default(0) // in minutes
+  lastReadAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId])
+}
+
+model XpHistory {
+  id          String   @id @default(uuid())
+  userId      String
+  amount      Int
+  action      String   // "register", "complete_profile", "read_page", "read_chapter", "finish_book", "streak", "referral"
+  description String
+  bookId      String?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Achievement {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String
+  icon        String   // icon name or URL
+  xpReward    Int      @default(0)
+  requirement String   // e.g., "complete_1_book", "streak_7", "refer_5"
+  createdAt   DateTime @default(now())
+
+  // Relations
+  users UserAchievement[]
+}
+
+model UserAchievement {
+  id            String   @id @default(uuid())
+  userId        String
+  achievementId String
+  earnedAt      DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+}
+
+model Referral {
+  id         String   @id @default(uuid())
+  referrerId String
+  referredId String   @unique
+  xpAwarded  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  referrer User @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade)
+  referred User @relation("Referred", fields: [referredId], references: [id], onDelete: Cascade)
+}
+
+model LeaderboardEntry {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  userName  String
+  userAvatar String?
+  xp        Int      @default(0)
+  period    String   // "global", "weekly", "monthly"
+  weekStart DateTime?
+  monthStart DateTime?
+  rank      Int?
+  updatedAt DateTime @updatedAt
+
+  @@index([period, xp(sort: Desc)])
+}
