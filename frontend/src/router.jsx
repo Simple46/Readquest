@@ -10,7 +10,7 @@ import ProfilePage from "./pages/ProfilePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import AdminLayout from "./layouts/AdminLayout";
-import AdminDashboard from "./pages/admin/AdminDashboard";
+// import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminBooks from "./pages/admin/AdminBooks";
 import AdminUpload from "./pages/admin/AdminUpload";
 
@@ -47,7 +47,7 @@ export const router = createBrowserRouter([
     path: "/admin",
     element: <AdminLayout />,
     children: [
-      { index: true, element: <AdminDashboard /> },
+    //   { index: true, element: <AdminDashboard /> },
       { path: "books", element: <AdminBooks /> },
       { path: "upload", element: <AdminUpload /> },
     ],
