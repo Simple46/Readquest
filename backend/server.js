@@ -6,7 +6,7 @@ import authRoutes from "./routes/auth.js";
 import bookRoutes from "./routes/books.js";
 import progressRoutes from "./routes/progress.js";
 import leaderboardRoutes from "./routes/leaderboard.js";
-import uploadRoutes from "./routes/upload.js";
+// import uploadRoutes from "./routes/upload.js";
 
 dotenv.config();
 
@@ -46,7 +46,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
-app.use("/api/upload", uploadRoutes);
+// app.use("/api/upload", uploadRoutes);
 
 // Health Check
 app.get("/api/health", (req, res) => {
